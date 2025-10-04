@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -21,7 +22,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 @Component
-public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler {
+public class CustomAuthenticationSuccessHandler implements AuthenticationSuccessHandler {
 
     @Autowired
     private UserRepository userRepository;
@@ -44,19 +45,16 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     @Override
     @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        OAuth2User oauthUser = (OAuth2User) authentication.getPrincipal();
+        String email = oauthUser.getAttribute("email");
+        String name = oauthUser.getAttribute("name");
 
-        String email = oAuth2User.getAttribute("email");
-        String name = oAuth2User.getAttribute("name");
+        if (email == null || email.isEmpty()) {
+            response.sendRedirect(buildRedirectUrl(false));
+            return;
+        }
 
-        User user = userRepository.findByEmail(email)
-                .orElseGet(() -> {
-                    User newUser = new User();
-                    newUser.setEmail(email);
-                    newUser.setName(name);
-                    newUser.setAuthenticationType(AuthenticationType.GOOGLE);
-                    return userRepository.save(newUser);
-                });
+        User user = userRepository.findByEmail(email).orElseGet(() -> createNewUser(email, name));
 
         String accessToken = tokenService.generateAccessToken(user);
         String refreshToken = tokenService.generateRefreshToken(user);
@@ -64,11 +62,24 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         response.addCookie(cookieUtil.createCookie("access_token", accessToken, CookieOptions.builder().httpOnly(true).maxAge(Duration.ofSeconds(accessTokenDuration).getSeconds()).build()));
         response.addCookie(cookieUtil.createCookie("refresh_token", refreshToken, CookieOptions.builder().httpOnly(true).maxAge(Duration.ofSeconds(refreshTokenDuration).getSeconds()).build()));
 
-        response.addCookie(cookieUtil.createSessionCookie("is_authenticated", Boolean.toString(true)));
+        response.addCookie(cookieUtil.createLongCookie("is_authenticated", Boolean.toString(true)));
 
-        response.addCookie(cookieUtil.createSessionCookie("access_token_expires", Instant.now().plus(accessTokenDuration, ChronoUnit.SECONDS).toString()));
-        response.addCookie(cookieUtil.createSessionCookie("refresh_token_expires", Instant.now().plus(refreshTokenDuration, ChronoUnit.SECONDS).toString()));
+        response.addCookie(cookieUtil.createLongCookie("access_token_expires", Instant.now().plus(accessTokenDuration, ChronoUnit.SECONDS).toString()));
+        response.addCookie(cookieUtil.createLongCookie("refresh_token_expires", Instant.now().plus(refreshTokenDuration, ChronoUnit.SECONDS).toString()));
 
-        response.sendRedirect(frontendUrl + "/callback.html");
+        String targetUrl = this.buildRedirectUrl(true);
+        response.sendRedirect(targetUrl);
+    }
+
+    private User createNewUser(String email, String name) {
+        User newUser = new User();
+        newUser.setEmail(email);
+        newUser.setName(name);
+        newUser.setAuthenticationType(AuthenticationType.GOOGLE);
+        return userRepository.save(newUser);
+    }
+
+    private String buildRedirectUrl(boolean success) {
+        return UriComponentsBuilder.fromHttpUrl(frontendUrl).path("/oauth2/callback").queryParam("success", success).build().toUriString();
     }
 }

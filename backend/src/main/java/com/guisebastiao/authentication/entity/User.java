@@ -34,6 +34,9 @@ public class User  extends Auditable implements UserDetails {
     @Column(name = "authentication_type", nullable = false)
     private AuthenticationType authenticationType;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private RecoverPassword recoverPassword;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of();

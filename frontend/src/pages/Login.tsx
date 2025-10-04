@@ -1,5 +1,6 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useContextAuth } from "@/context/AuthContext";
+import { Separator } from "@/components/ui/separator";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { LoginRequest } from "@/types/api/auth";
 import { loginSchema } from "@/schema/authSchema";
@@ -10,7 +11,6 @@ import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { useAuth } from "@/hooks/useAuth";
-import { Separator } from "@/components/ui/separator";
 
 export const Login = () => {
   const { setAuthenticated } = useContextAuth();
@@ -37,16 +37,12 @@ export const Login = () => {
   };
 
   const handleLoginGoogle = () => {
-    const width = 500;
-    const height = 600;
-    const left = window.screenX + (window.outerWidth - width) / 2;
-    const top = window.screenY + (window.outerHeight - height) / 2;
-    window.open("http://localhost:8080/oauth2/authorization/google", "Social Login", `width=${width},height=${height},left=${left},top=${top}`);
+    window.location.href = `${import.meta.env.VITE_BASE_URL}/oauth2/authorization/google`;
   };
 
   return (
     <Form {...loginForm}>
-      <form onSubmit={loginForm.handleSubmit(handleLogin)} className="max-w-lg flex-1 space-y-4 content-center self-center mx-auto">
+      <form onSubmit={loginForm.handleSubmit(handleLogin)} className="max-w-lg flex flex-col flex-1 space-y-4 content-center self-center mx-auto">
         <h1 className="text-2xl font-bold leading-relaxed text-center">Entrar</h1>
         <FormField
           control={loginForm.control}
@@ -78,19 +74,22 @@ export const Login = () => {
           {isPending && <Spinner spinnerSize="sm" className="text-background" />}
           <span>{isPending ? "Entrando" : "Entrar"}</span>
         </Button>
-        <Button variant="secondary" type="button" className="w-full" disabled={isPending} onClick={() => navigate("/register")}>
-          <span>Criar minha conta</span>
-        </Button>
         <div className="flex items-center justify-center overflow-hidden gap-2">
           <Separator />
           <span className="text-xs text-muted-foreground">OU</span>
           <Separator />
         </div>
+        <Button variant="ghost" type="button" className="w-full border" disabled={isPending} onClick={() => navigate("/register")}>
+          <span>Cadastrar</span>
+        </Button>
         <Button variant="ghost" type="button" className="w-full border" disabled={isPending} onClick={handleLoginGoogle}>
           <img alt="G" src={GoogleIcon} className="size-4.5" />
           <span>
             <span>Entrar com Google</span>
           </span>
+        </Button>
+        <Button variant="link" type="button" className="self-center" disabled={isPending} onClick={() => navigate("/forgot-password")}>
+          <span>Esqueceu a senha?</span>
         </Button>
       </form>
     </Form>

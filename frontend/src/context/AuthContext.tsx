@@ -21,19 +21,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     window.addEventListener("logout", logout);
 
-    const messageHandler = (event: MessageEvent) => {
-      if (event.origin !== "http://localhost:5173") return;
-
-      if (event.data?.success) {
-        setAuthenticated(true);
-      }
-    };
-
-    window.addEventListener("message", messageHandler);
-
     return () => {
       window.removeEventListener("logout", logout);
-      window.removeEventListener("message", messageHandler);
     };
   }, []);
 

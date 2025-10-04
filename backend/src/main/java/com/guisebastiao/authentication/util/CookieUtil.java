@@ -3,6 +3,8 @@ package com.guisebastiao.authentication.util;
 import jakarta.servlet.http.Cookie;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
+
 @Component
 public class CookieUtil {
     public Cookie createCookie(String name, String value, CookieOptions options) {
@@ -16,8 +18,9 @@ public class CookieUtil {
         return cookie;
     }
 
-    public Cookie createSessionCookie(String name, String value) {
-        return createCookie(name, value, CookieOptions.builder().maxAge(-1).build());
+    public Cookie createLongCookie(String name, String value) {
+        long duration = Duration.ofDays(365).toSeconds();
+        return createCookie(name, value, CookieOptions.builder().maxAge(duration).build());
     }
 
     public Cookie deleteCookie(String name) {

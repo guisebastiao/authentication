@@ -84,10 +84,10 @@ public class AuthServiceImpl implements AuthService {
         res.addCookie(cookieUtil.createCookie("access_token", token, CookieOptions.builder().httpOnly(true).maxAge(Duration.ofSeconds(accessTokenDuration).getSeconds()).build()));
         res.addCookie(cookieUtil.createCookie("refresh_token", refreshToken, CookieOptions.builder().httpOnly(true).maxAge(Duration.ofSeconds(refreshTokenDuration).getSeconds()).build()));
 
-        res.addCookie(cookieUtil.createSessionCookie("is_authenticated", Boolean.toString(true)));
+        res.addCookie(cookieUtil.createLongCookie("is_authenticated", Boolean.toString(true)));
 
-        res.addCookie(cookieUtil.createSessionCookie("access_token_expires", Instant.now().plus(accessTokenDuration, ChronoUnit.SECONDS).toString()));
-        res.addCookie(cookieUtil.createSessionCookie("refresh_token_expires", Instant.now().plus(refreshTokenDuration, ChronoUnit.SECONDS).toString()));
+        res.addCookie(cookieUtil.createLongCookie("access_token_expires", Instant.now().plus(accessTokenDuration, ChronoUnit.SECONDS).toString()));
+        res.addCookie(cookieUtil.createLongCookie("refresh_token_expires", Instant.now().plus(refreshTokenDuration, ChronoUnit.SECONDS).toString()));
 
         LoginResponse data = new LoginResponse(user.getName(), user.getEmail());
 
@@ -99,7 +99,7 @@ public class AuthServiceImpl implements AuthService {
     public DefaultResponse<RegisterResponse> register(RegisterRequest dto) {
         Optional<User> existsUser = this.userRepository.findByEmail(dto.email());
 
-        if (existsUser.isPresent() && existsUser.get().getPassword() != null) {
+        if (existsUser.isPresent() && existsUser.get().getAuthenticationType() == AuthenticationType.LOCAL) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Essa conta já está cadastrada");
         }
 
@@ -141,8 +141,8 @@ public class AuthServiceImpl implements AuthService {
         String newAccessToken = this.tokenService.generateAccessToken(user);
 
         res.addCookie(cookieUtil.createCookie("access_token", token, CookieOptions.builder().httpOnly(true).maxAge(Duration.ofSeconds(accessTokenDuration).getSeconds()).build()));
-        res.addCookie(cookieUtil.createSessionCookie("access_token_expires", Instant.now().plus(accessTokenDuration, ChronoUnit.SECONDS).toString()));
-        res.addCookie(cookieUtil.createSessionCookie("is_authenticated", Boolean.toString(true)));
+        res.addCookie(cookieUtil.createLongCookie("access_token_expires", Instant.now().plus(accessTokenDuration, ChronoUnit.SECONDS).toString()));
+        res.addCookie(cookieUtil.createLongCookie("is_authenticated", Boolean.toString(true)));
 
         return new DefaultResponse<Void>(true, "Refresh token efetuado com sucesso", null);
     }
@@ -153,7 +153,7 @@ public class AuthServiceImpl implements AuthService {
         res.addCookie(cookieUtil.deleteCookie("refresh_token"));
         res.addCookie(cookieUtil.deleteCookie("access_token_expires"));
         res.addCookie(cookieUtil.deleteCookie("refresh_token_expires"));
-        res.addCookie(cookieUtil.createSessionCookie("is_authenticated", Boolean.toString(false)));
+        res.addCookie(cookieUtil.createLongCookie("is_authenticated", Boolean.toString(false)));
 
         return new DefaultResponse<Void>(true, "Logout efetuado com sucesso", null);
     }

@@ -7,7 +7,7 @@ const protectRoute = async (): Promise<DefaultResponse<string>> => {
     const response = await axios.get("/protect");
     return response.data;
   } catch (error) {
-    handleApiError(error, "Erro ao realizar login");
+    handleApiError(error, "Erro ao buscar a rota protegida");
   }
 };
 

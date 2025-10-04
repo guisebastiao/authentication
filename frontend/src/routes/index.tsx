@@ -4,8 +4,11 @@ import { DefaultRoute } from "@/routes/DefaultRoute";
 import { PublicRoute } from "@/routes/PublicRoute";
 
 import { Register } from "@/pages/Register";
+import { Callback } from "@/pages/Callback";
 import { Login } from "@/pages/Login";
 import { Home } from "@/pages/Home";
+import { ForgotPassword } from "@/pages/ForgotPassword";
+import { RecoverPassword } from "@/pages/RecoverPassword";
 
 export const router = createBrowserRouter([
   {
@@ -21,6 +24,18 @@ export const router = createBrowserRouter([
           {
             element: <Register />,
             path: "/register",
+          },
+          {
+            element: <Callback />,
+            path: "/oauth2/callback",
+          },
+          {
+            element: <ForgotPassword />,
+            path: "/forgot-password",
+          },
+          {
+            element: <RecoverPassword />,
+            path: "/recover-password/:recoverToken",
           },
         ],
       },

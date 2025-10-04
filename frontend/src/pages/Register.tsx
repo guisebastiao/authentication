@@ -1,6 +1,7 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import type { RegisterRequest } from "@/types/api/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Separator } from "@/components/ui/separator";
 import { registerSchema } from "@/schema/authSchema";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/Spinner";
@@ -20,6 +21,7 @@ export const Register = () => {
       name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
@@ -76,12 +78,30 @@ export const Register = () => {
             </FormItem>
           )}
         />
+        <FormField
+          control={registerForm.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Confirmar Senha</FormLabel>
+              <FormControl>
+                <Input type="password" placeholder="Comfirme sua senha" autoComplete="off" {...field} />
+              </FormControl>
+              {registerForm.formState.errors.confirmPassword && <FormMessage>{registerForm.formState.errors.confirmPassword.message}</FormMessage>}
+            </FormItem>
+          )}
+        />
         <Button type="submit" className="w-full" disabled={isPending}>
           {isPending && <Spinner spinnerSize="sm" className="text-background" />}
           <span>{isPending ? "Cadastrando" : "Cadastrar"}</span>
         </Button>
-        <Button variant="secondary" type="button" className="w-full" disabled={isPending} onClick={() => navigate("/login")}>
-          <span>Entrar na minha conta</span>
+        <div className="flex items-center justify-center overflow-hidden gap-2">
+          <Separator />
+          <span className="text-xs text-muted-foreground">OU</span>
+          <Separator />
+        </div>
+        <Button variant="ghost" type="button" className="w-full border" disabled={isPending} onClick={() => navigate("/login")}>
+          <span>Entrar</span>
         </Button>
       </form>
     </Form>
