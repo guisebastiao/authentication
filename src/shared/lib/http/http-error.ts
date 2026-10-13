@@ -1,7 +1,7 @@
 import { ApiBodyError, ApiFieldError } from "@/shared/types/api";
 import { ApiErrorCode } from "@/shared/types/api-error-codes";
 
-type HttpApiError =
+export type HttpApiError =
   | (ApiBodyError<ApiFieldError[]> & {
       code: ApiErrorCode.VALIDATION_ERROR;
     })

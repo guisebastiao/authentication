@@ -19,11 +19,19 @@ const publicRoutes = [
     redirectWhenAuthenticated: true,
   },
   {
-    path: "/forgot",
+    path: "/account-activation/:activationCode",
     redirectWhenAuthenticated: true,
   },
   {
-    path: "/account-activation/:activationCode",
+    path: "/password-recovery/forgot",
+    redirectWhenAuthenticated: true,
+  },
+  {
+    path: "/password-recovery/verify/:recoverToken",
+    redirectWhenAuthenticated: true,
+  },
+  {
+    path: "/password-recovery/reset/:recoverToken",
     redirectWhenAuthenticated: true,
   },
 ];
@@ -78,7 +86,7 @@ const redirect = (request: NextRequest, pathname: string) => {
 const redirectToSignIn = (request: NextRequest) => {
   const response = redirect(request, REDIRECT_WHEN_NOT_AUTHENTICATED);
 
-  Object.values(AUTH_TOKENS).forEach((name) => {
+  [...Object.values(AUTH_TOKENS)].forEach((name) => {
     response.cookies.delete(name);
   });
 
@@ -86,9 +94,11 @@ const redirectToSignIn = (request: NextRequest) => {
 };
 
 const refresh = async (request: NextRequest): Promise<SignInResponse | null> => {
-  const body = Object.fromEntries(
-    Object.entries(AUTH_TOKENS).map(([key, name]) => [key, request.cookies.get(name)?.value]),
-  );
+  const body = {
+    accessToken: request.cookies.get(AUTH_TOKENS.ACCESS_TOKEN)?.value,
+    refreshToken: request.cookies.get(AUTH_TOKENS.REFRESH_TOKEN)?.value,
+    sessionToken: request.cookies.get(AUTH_TOKENS.SESSION_TOKEN)?.value,
+  };
 
   try {
     return await httpFetch<SignInResponse>({

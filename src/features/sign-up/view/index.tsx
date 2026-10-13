@@ -43,7 +43,7 @@ export const SignUpView = () => {
   return (
     <Card className="sm:max-w-xl not-sm:ring-0 not-sm:px-1 w-full mx-auto my-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-semibold">Criar Conta</CardTitle>
+        <CardTitle className="text-xl font-semibold">Criar Conta</CardTitle>
         <CardDescription>Preencha os dados abaixo para criar sua conta.</CardDescription>
       </CardHeader>
       <CardContent>

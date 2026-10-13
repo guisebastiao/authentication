@@ -45,7 +45,7 @@ export const SignInView = () => {
   return (
     <Card className="sm:max-w-xl not-sm:ring-0 not-sm:px-1 w-full mx-auto my-auto">
       <CardHeader>
-        <CardTitle className="text-2xl font-semibold">Entrar</CardTitle>
+        <CardTitle className="text-xl font-semibold">Entrar</CardTitle>
         <CardDescription>Faça login para acessar sua conta, ou entre com o Google.</CardDescription>
       </CardHeader>
       <CardContent>
@@ -89,7 +89,7 @@ export const SignInView = () => {
               variant="link"
               className="mr-0 mt-3 text-foreground/75"
               type="button"
-              onClick={() => router.push("/forgot")}
+              onClick={() => router.push("/password-recovery/forgot")}
             >
               Esqueci minha senha
             </Button>

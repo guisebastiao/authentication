@@ -1,5 +1,15 @@
 export type AccountActivationResponse = {
+  email: string;
   activationToken: string;
-  expiresAt: Date;
-  resendAvailableAt: Date;
+  expiresAt: string;
+  resendAvailableAt: string;
+};
+
+export type AccountActivationRequest = {
+  activationToken: string;
+  otpCode: string;
+};
+
+export type ResendEmailRequest = {
+  activationToken: string;
 };

@@ -1,4 +1,5 @@
 import { GoogleSignInRequest, SignInRequest, SignInResponse } from "@/features/sign-in/types";
+import { AccountActivationResponse } from "@/features/account-activation/types";
 import { ApiErrorCode } from "@/shared/types/api-error-codes";
 import { HttpError } from "@/shared/lib/http/http-error";
 import { toast } from "@/shared/components/ui/toast";
@@ -43,12 +44,23 @@ export const useSignIn = () => {
           });
           break;
         }
+        case ApiErrorCode.ACCOUNT_NOT_ACTIVATED: {
+          const details = data.details as AccountActivationResponse | null;
+
+          if (!details) {
+            break;
+          }
+
+          router.push(`/account-activation/${details.activationToken}`);
+        }
         case ApiErrorCode.VALIDATION_ERROR: {
-          data.details?.forEach((fieldError) => {
-            form.setError(fieldError.field as keyof SignInRequest, {
-              message: fieldError.code,
+          if (Array.isArray(data.details)) {
+            data.details.forEach((fieldError) => {
+              form.setError(fieldError.field as keyof SignInRequest, {
+                message: fieldError.code,
+              });
             });
-          });
+          }
 
           break;
         }
@@ -73,7 +85,7 @@ export const useSignIn = () => {
     mutationFn: async (body: GoogleSignInRequest) => {
       return httpFetch<SignInResponse, GoogleSignInRequest>({
         baseURL: window.location.origin,
-        path: "/api/auth/sign-in",
+        path: "/api/auth/google/sign-in",
         method: "POST",
         body,
       });

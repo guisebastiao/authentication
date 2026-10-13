@@ -1,28 +1,19 @@
 import { ApiErrorCode } from "@/shared/types/api-error-codes";
 import { HttpError } from "@/shared/lib/http/http-error";
 
-type ExtractPathParams<T extends string> = T extends `${string}:${infer Param}/${infer Rest}`
-  ? Param | ExtractPathParams<`/${Rest}`>
-  : T extends `${string}:${infer Param}`
-    ? Param
-    : never;
-
-type PathParams<P extends string> = [ExtractPathParams<P>] extends [never]
-  ? { paths?: never }
-  : { paths: Record<ExtractPathParams<P>, string | number> };
-
-type HttpFetchOptions<P extends string, B> = {
+type HttpFetchOptions<B> = {
   baseURL: string;
-  path: P;
+  path: string;
+  paths?: Record<string, string | number>;
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   body?: B;
   queries?: Record<string, string | number | boolean | null | undefined>;
   options?: Omit<RequestInit, "method" | "body">;
-} & PathParams<P>;
+};
 
 const TIMEOUT = 10000;
 
-export const httpFetch = async <T = unknown, B = unknown, const P extends string = string>({
+export const httpFetch = async <T = unknown, B = unknown>({
   baseURL,
   path,
   method = "GET",
@@ -30,8 +21,8 @@ export const httpFetch = async <T = unknown, B = unknown, const P extends string
   queries,
   body,
   options = {},
-}: HttpFetchOptions<P, B>): Promise<T> => {
-  let resolvedPath: string = path;
+}: HttpFetchOptions<B>): Promise<T> => {
+  let resolvedPath = path;
 
   if (paths) {
     for (const [key, value] of Object.entries(paths)) {
